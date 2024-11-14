@@ -29,13 +29,14 @@ class Bath:
         'status'
     ]
 
-    def __init__(self, ip):
+    def __init__(self, ip, max_timeouts=10, comm_timeout=0.25):
         """Initialize the connection with the bath's IP address."""
         self.ip = ip
         self.open = False
         self.reconnecting = False
         self.timeouts = 0
-        self.max_timeouts = 10
+        self.max_timeouts = max_timeouts
+        self.comm_timeout = comm_timeout
         self.connection = {}
         self.lock = asyncio.Lock()
 
@@ -198,7 +199,7 @@ class Bath:
         """Automatically maintain TCP connection."""
         try:
             if not self.open:
-                await asyncio.wait_for(self._connect(), timeout=0.25)
+                await asyncio.wait_for(self._connect(), timeout=self.comm_timeout)
             self.reconnecting = False
         except (asyncio.TimeoutError, OSError):
             if not self.reconnecting:
@@ -210,7 +211,7 @@ class Bath:
         try:
             self.connection['writer'].write(command.encode())
             future = self.connection['reader'].readuntil(b'\r\n')
-            line = await asyncio.wait_for(future, timeout=0.25)
+            line = await asyncio.wait_for(future, timeout=self.comm_timeout)
             result = line.decode().strip()
             self.timeouts = 0
         except (asyncio.TimeoutError, TypeError, OSError):
