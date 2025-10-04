@@ -28,12 +28,12 @@ def expected_data():
             'temperature': {
                 'bath': 23.49,                  # Internal (bath) temperature, °C
                 'process': 22.71,               # Process temperature, °C
-                'setpoint': 50                  # Temperature setpoint, °C
+                'setpoint': 50,                  # Temperature setpoint, °C
             },
             'pump': {
                 'pressure': random.random() * 1000,    # Pump head pressure, mbar
                 'speed': random.random() * 1000,       # Pump speed, rpm
-                'setpoint': 500                # Pump speed setpoint, rpm
+                'setpoint': 500,                # Pump speed setpoint, rpm
             },
             'status': {
                 'circulating': random.choice([False, True]),  # True if device is circulating

@@ -31,12 +31,12 @@ class Bath(realBath):
             'temperature': {
                 'bath': 23.49,                  # Internal (bath) temperature, °C
                 'process': 22.71,               # Process temperature, °C
-                'setpoint': self.temp_setpoint  # Temperature setpoint, °C
+                'setpoint': self.temp_setpoint,  # Temperature setpoint, °C
             },
             'pump': {
                 'pressure': random.random() * 1000,    # Pump head pressure, mbar
                 'speed': random.random() * 1000,       # Pump speed, rpm
-                'setpoint': self.pump_setpoint  # Pump speed setpoint, rpm
+                'setpoint': self.pump_setpoint,  # Pump speed setpoint, rpm
             },
             'status': {
                 'circulating': random.choice([False, True]),  # True if device is circulating

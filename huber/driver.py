@@ -26,7 +26,7 @@ class Bath:
         'pump.setpoint',
         'fill',
         'maintenance',
-        'status'
+        'status',
     ]
 
     def __init__(self, ip, max_timeouts=10, comm_timeout=0.25):

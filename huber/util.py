@@ -10,7 +10,7 @@ with open(os.path.join(root, 'faults.csv'), encoding='utf8') as in_file:
         'code': int(row[0]),
         'type': row[1],
         'condition': row[2] if len(row) >= 3 else None,
-        'recovery': row[3] if len(row) == 4 else None
+        'recovery': row[3] if len(row) == 4 else None,
     } for row in reader if row[0]}
 
 fields = {
@@ -18,52 +18,52 @@ fields = {
         'address': 0x14,
         'writable': True,
         'format': 'b',
-        'range': (0, 1)
+        'range': (0, 1),
     },
     'temperature': {
         'setpoint': {
             'address': 0x00,
             'writable': True,
             'format': 'f',
-            'range': (-151, 327)
+            'range': (-151, 327),
         },
         'bath': {
             'address': 0x01,
             'format': 'f',
-            'range': (-151, 327)
+            'range': (-151, 327),
         },
         'process': {
             'address': 0x07,
             'format': 'f',
-            'range': (-151, 327)
-        }
+            'range': (-151, 327),
+        },
     },
     'pump': {
         'pressure': {
             'address': 0x03,
             'format': 'f',
-            'range': (0, 320)
+            'range': (0, 320),
         },
         'speed': {
             'address': 0x26,
             'format': 'd',
-            'range': (0, 32000)
+            'range': (0, 32000),
         },
         'setpoint': {
             'address': 0x48,
             'writable': True,
             'format': 'd',
-            'range': (1500, 4500)
-        }
+            'range': (1500, 4500),
+        },
     },
     'fill': {
         'address': 0x0f,
         'format': '%',
-        'range': (-0.001, 1)
+        'range': (-0.001, 1),
     },
     'maintenance': {
         'address': 0x5c,
-        'format': 'd'
+        'format': 'd',
     },
     'status': {
         'address': 0x0a,
@@ -73,19 +73,19 @@ fields = {
             1: 'circulating',
             4: 'pumping',
             8: 'error',
-            9: 'warning'
-        }
+            9: 'warning',
+        },
     },
     'error': {
         'address': 0x05,
         'format': 'fault',
-        'writable': True
+        'writable': True,
     },
     'warning': {
         'address': 0x06,
         'format': 'fault',
-        'writable': True
-    }
+        'writable': True,
+    },
 }
 
 
