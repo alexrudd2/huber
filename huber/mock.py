@@ -4,29 +4,30 @@ import asyncio
 import random
 
 from huber.driver import Bath as realBath
+from huber.driver import BathData
 
 
 class Bath(realBath):
     """Mock interface to a Huber bath."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Init fixed variables."""
-        self.temp_setpoint = 50
-        self.pump_setpoint = 500
+        self.temp_setpoint: float = 50
+        self.pump_setpoint: float = 500
         self.on = False
 
-    async def _connect(self):
+    async def _connect(self) -> None:
         """Mock creating the TCP connection."""
         self.open = True
 
-    def close(self):
+    def close(self) -> None:
         """Mock closing the TCP connection."""
         self.open = False
 
-    async def get(self):
+    async def get(self) -> BathData:
         """Return data structure randomly populated."""
         await asyncio.sleep(random.random() * 0.25)
-        return {
+        mock_bath_data: BathData = {
             'on': self.on,  # Temperature control (+pump) active
             'temperature': {
                 'bath': 23.49,                  # Internal (bath) temperature, °C
@@ -48,63 +49,64 @@ class Bath(realBath):
             'fill': random.random(),             # Oil level, [0, 1]
             'maintenance': random.random() * 365,  # Time until maintenance alarm, days
         }
+        return mock_bath_data
 
-    async def start(self):
+    async def start(self) -> None:
         """Start the controller and pump."""
         await asyncio.sleep(random.random())
         self.on = True
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the controller and pump."""
         await asyncio.sleep(random.random() * 0.25)
         self.on = False
 
-    async def get_setpoint(self, *args, **kwargs):
+    async def get_setpoint(self) -> float:
         """Return setpoint."""
         return (await self.get())['temperature']['setpoint']
 
-    async def set_setpoint(self, value):
+    async def set_setpoint(self, value: float) -> None:
         """Set the temperature setpoint of the bath, in C."""
         await asyncio.sleep(random.random() * 0.25)
         self.temp_setpoint = value
 
-    async def get_bath_temperature(self):
+    async def get_bath_temperature(self) -> float:
         """Get the internal temperature of the bath, in C."""
         return (await self.get())['temperature']['bath']
 
-    async def get_process_temperature(self):
+    async def get_process_temperature(self) -> float:
         """Get the (optionally installed) process temperature, in C."""
         return (await self.get())['temperature']['process']
 
-    async def get_pump_pressure(self):
+    async def get_pump_pressure(self) -> float:
         """Get the bath pump outlet pressure, in mbar."""
         return (await self.get())['pump']['pressure']
 
-    async def get_pump_speed(self):
+    async def get_pump_speed(self) -> float:
         """Get the bath pump speed, in RPM."""
         return (await self.get())['pump']['speed']
 
-    async def set_pump_speed(self, value):
+    async def set_pump_speed(self, value: float) -> None:
         """Set the bath pump speed, in RPM."""
         await asyncio.sleep(random.random() * 0.25)
         self.pump_setpoint = value
 
-    async def get_fill_level(self):
+    async def get_fill_level(self) -> float:
         """Get the thermostat fluid fill level, in [0, 1]."""
-        return (await self.get()).get('fill')
+        return (await self.get())['fill']
 
-    async def get_next_maintenance(self):
+    async def get_next_maintenance(self) -> float:
         """Get the number of days until next maintenance alarm."""
-        return (await self.get()).get('maintenance')
+        return (await self.get())['maintenance']
 
-    async def get_status(self):
+    async def get_status(self) -> dict[str, bool]:
         """Get bath status indicators. Useful for triggering alerts."""
         return (await self.get())['status']
 
-    async def get_error(self):
+    async def get_error(self) -> dict | None:
         """Get the most recent error, as a dictionary."""
         return (await self.get()).get('error')
 
-    async def get_warning(self):
+    async def get_warning(self) -> dict | None:
         """Get the most recent warning, as a dictionary."""
         return (await self.get()).get('warning')

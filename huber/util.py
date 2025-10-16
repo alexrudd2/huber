@@ -89,7 +89,7 @@ fields = {
 }
 
 
-def int_to_hex(number, bits=16):
+def int_to_hex(number: int, bits: int =16) -> str:
     """Convert int to a four-character hex string.
 
     This uses two's complement in encoding the integer, per Huber's
@@ -98,7 +98,7 @@ def int_to_hex(number, bits=16):
     return f'{(number + (1 << bits)) % (1 << bits):04X}'
 
 
-def hex_to_int(hex_string, bits=16):
+def hex_to_int(hex_string: str, bits: int =16) -> int:
     """Convert a four-character hex string to an integer.
 
     This uses two's complement in decoding the hex string, per Huber's
@@ -113,7 +113,7 @@ def hex_to_int(hex_string, bits=16):
     return number
 
 
-def parse(number, settings):
+def parse(number, settings: dict):
     """Parse a number according to formats from Huber's manual."""
     if number is None:
         return None

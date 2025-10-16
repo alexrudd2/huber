@@ -3,7 +3,7 @@
 from huber.driver import Bath
 
 
-def command_line(args=None):
+def command_line(args=None) -> None:
     """Command-line interface to the Huber bath."""
     import argparse
     import asyncio
@@ -15,7 +15,7 @@ def command_line(args=None):
                         help="Sets the bath temperature setpoint.")
     args = parser.parse_args(args)
 
-    async def print_state():
+    async def print_state() -> None:
         async with Bath(args.ip) as bath:
             if args.set_setpoint is not None:
                 await bath.set_setpoint(args.set_setpoint)
