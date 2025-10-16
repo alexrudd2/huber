@@ -11,7 +11,7 @@ Installation
 ============
 
 ```
-pip install huber
+uv pip install huber
 ```
 
 Usage
