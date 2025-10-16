@@ -28,21 +28,21 @@ def expected_data():
             'temperature': {
                 'bath': 23.49,                  # Internal (bath) temperature, °C
                 'process': 22.71,               # Process temperature, °C
-                'setpoint': 50,                  # Temperature setpoint, °C
+                'setpoint': 50,                 # Temperature setpoint, °C
             },
             'pump': {
                 'pressure': random.random() * 1000,    # Pump head pressure, mbar
                 'speed': random.random() * 1000,       # Pump speed, rpm
-                'setpoint': 500,                # Pump speed setpoint, rpm
+                'setpoint': 500,                       # Pump speed setpoint, rpm
             },
             'status': {
                 'circulating': random.choice([False, True]),  # True if device is circulating
                 'controlling': random.choice([False, True]),  # True if temp control is active
-                'error': False,                        # True if an uncleared error is present
+                'error': False,                               # True if an uncleared error exists
                 'pumping': random.choice([False, True]),      # True if pump is on
-                'warning': False,                      # True if an uncleared warning exists
+                'warning': False,                             # True if an uncleared warning exists
             },
-            'fill': random.random(),             # Oil level, [0, 1]
+            'fill': random.random(),               # Oil level, [0, 1]
             'maintenance': random.random() * 365,  # Time until maintenance alarm, days
         }
 
