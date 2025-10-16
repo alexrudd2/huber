@@ -34,9 +34,9 @@ jobs:
     - name: Lint with ruff
       run: |
         uv run ruff check .
-    - name: Check types with mypy
+    - name: Check types with zuban
       run: |
-        uv run mypy huber
+        uv run zuban check
     - name: Pytest
       run: |
         uv run pytest

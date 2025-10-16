@@ -6,12 +6,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict
 
 from huber import util
 
 logger = logging.getLogger('huber')
 
+class ReaderWriter(TypedDict):  # noqa: D101
+    reader: asyncio.StreamReader
+    writer: asyncio.StreamWriter
 
 class Bath:
     """Python driver for Huber recirculating baths."""
@@ -28,6 +31,7 @@ class Bath:
         'maintenance',
         'status',
     ]
+    connection: ReaderWriter
 
     def __init__(self, ip, max_timeouts=10, comm_timeout=0.25):
         """Initialize the connection with the bath's IP address."""
@@ -37,7 +41,6 @@ class Bath:
         self.timeouts = 0
         self.max_timeouts = max_timeouts
         self.comm_timeout = comm_timeout
-        self.connection = {}
         self.lock = asyncio.Lock()
 
     async def __aenter__(self):
@@ -219,5 +222,5 @@ class Bath:
             if self.timeouts == self.max_timeouts:
                 logger.error(f'Reading from {self.ip} timed out '
                              f'{self.timeouts} times.')
-            result = None
+            return None
         return result
