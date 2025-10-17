@@ -1,4 +1,5 @@
 """Mock interface to a Huber bath."""
+from __future__ import annotations
 
 import asyncio
 import random
