@@ -6,7 +6,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import ClassVar, Literal, NotRequired, TypedDict, overload
+from typing import ClassVar, Literal, overload
+
+try:
+    from typing_extensions import NotRequired, TypedDict
+except ImportError:
+    from typing import NotRequired, TypedDict
 
 from huber import util
 
