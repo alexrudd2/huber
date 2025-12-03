@@ -19,7 +19,6 @@ classifiers = [
   "Natural Language :: English",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -31,7 +30,7 @@ classifiers = [
 
 [dependency-groups]
 dev = [
-  "pytest",
+  "pytest>=9.0",
   "pytest-cov",
   "pytest-asyncio",
   "ruff==0.14.7",
@@ -87,8 +86,8 @@ ignore-variadic-names = true
 [tool.mypy]
 check_untyped_defs = true
 
-[tool.pytest.ini_options]
-addopts = "--cov=huber"
+[tool.pytest]
+addopts = ["--cov"]
 
 [tool.pyright]
 venvPath = "."
