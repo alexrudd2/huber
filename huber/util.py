@@ -5,7 +5,7 @@ import os
 root = os.path.normpath(os.path.dirname(__file__))
 with open(os.path.join(root, 'faults.csv'), encoding='utf8') as in_file:
     reader = csv.reader(in_file)
-    next(reader)
+    _ = next(reader)
     faults = {int(row[0]): {
         'code': int(row[0]),
         'type': row[1],
@@ -134,11 +134,11 @@ def parse(number, settings: dict):
         raise NotImplementedError(f'Number format "{format}" not supported.')
 
 
-def get_field(key):
+def get_field(key: str):
     """Search period-separated key searching on `fields`."""
     f = fields
     for k in key.split('.'):
-        f = f[k]  # type: ignore
+        f = f[k]  # type: ignore[assignment]
     return f
 
 

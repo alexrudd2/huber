@@ -50,7 +50,7 @@ class Bath:
     ]
     connection: ReaderWriter
 
-    def __init__(self, ip, max_timeouts: int =10, comm_timeout: float =0.25) -> None:
+    def __init__(self, ip: str, max_timeouts: int =10, comm_timeout: float =0.25) -> None:
         """Initialize the connection with the bath's IP address."""
         self.ip = ip
         self.open = False
@@ -186,7 +186,7 @@ class Bath:
                             | Literal['temperature.setpoint']
                             | Literal['temperature.process']
                             | Literal['temperature.bath']) -> float: ...
-    async def _get(self, key):
+    async def _get(self, key: str):
         """Get a property as specified by the corresponding key."""
         settings = util.get_field(key)
         response = await self._write_and_read(settings['address'])
@@ -240,7 +240,7 @@ class Bath:
                 logger.error(f'Connecting to {self.ip} timed out.')
             self.reconnecting = True
 
-    async def _handle_communication(self, command):
+    async def _handle_communication(self, command: str):
         """Manage communication, including timeouts and logging."""
         try:
             self.connection['writer'].write(command.encode())

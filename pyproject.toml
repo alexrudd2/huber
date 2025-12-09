@@ -92,3 +92,5 @@ addopts = ["--cov"]
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+enableTypeIgnoreComments = true
+reportImplicitStringConcatenation = false
