@@ -100,7 +100,7 @@ class Bath:
         """Stop the controller and pump."""
         return await self._set('on', False)
 
-    async def toggle(self, on) -> None:
+    async def toggle(self, on: bool) -> None:
         """Start or stop the controller and pump."""
         return await self._set('on', on)
 
@@ -156,7 +156,7 @@ class Bath:
         """Get the number of days until next maintenance alarm."""
         return await self._get('maintenance')
 
-    async def get_status(self) -> dict:
+    async def get_status(self) -> dict[str, bool]:
         """Get bath status indicators. Useful for triggering alerts."""
         return await self._get('status')
 
@@ -174,7 +174,7 @@ class Bath:
         self.open = True
 
     @overload
-    async def _get(self, key: Literal['status']) -> dict: ...
+    async def _get(self, key: Literal['status']) -> dict[str, bool]: ...
     @overload
     async def _get(self, key: Literal['error']
                             | Literal['warning']) -> dict | None: ...
