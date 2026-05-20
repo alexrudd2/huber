@@ -35,7 +35,7 @@ dev = [
   "pytest-cov",
   "pytest-asyncio>=1.3.0",
   "ruff==0.15.8",
-  "zuban>=0.1.1",
+  "zuban==0.6.2",
 ]
 
 [project.scripts]
