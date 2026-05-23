@@ -30,8 +30,8 @@ class BathData(TypedDict):
     status: dict[str, bool]
     fill: float
     maintenance: float
-    warning: NotRequired[dict]
-    error: NotRequired[dict]
+    warning: NotRequired[util.Fault]
+    error: NotRequired[util.Fault]
 
 class Bath:
     """Python driver for Huber recirculating baths."""
@@ -128,11 +128,11 @@ class Bath:
         """Get the bath pump speed, in RPM."""
         return await self._get('pump.speed')
 
-    async def get_error(self) -> dict | None:
+    async def get_error(self) -> util.Fault | None:
         """Get the most recent error, as a dictionary."""
         return await self._get('error')
 
-    async def get_warning(self) -> dict | None:
+    async def get_warning(self) -> util.Fault | None:
         """Get the most recent warning, as a dictionary."""
         return await self._get('warning')
 
@@ -177,7 +177,7 @@ class Bath:
     async def _get(self, key: Literal['status']) -> dict[str, bool]: ...
     @overload
     async def _get(self, key: Literal['error']
-                            | Literal['warning']) -> dict | None: ...
+                            | Literal['warning']) -> util.Fault | None: ...
     @overload
     async def _get(self, key: Literal['maintenance']
                             | Literal['fill']

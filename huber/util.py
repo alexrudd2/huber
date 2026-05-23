@@ -1,12 +1,23 @@
 """Utilities to handle Huber's encodings."""
 import csv
 import os
+from typing import TypedDict
+
+
+class Fault(TypedDict):
+    """Information about a fault code from the manual."""
+
+    code: int
+    type: str
+    condition: str | None
+    recovery: str | None
+
 
 root = os.path.normpath(os.path.dirname(__file__))
 with open(os.path.join(root, 'faults.csv'), encoding='utf8') as in_file:
     reader = csv.reader(in_file)
     _ = next(reader)
-    faults = {int(row[0]): {
+    faults: dict[int, Fault] = {int(row[0]): {
         'code': int(row[0]),
         'type': row[1],
         'condition': row[2] if len(row) >= 3 else None,
@@ -87,7 +98,6 @@ fields = {
         'writable': True,
     },
 }
-
 
 def int_to_hex(number: int, bits: int =16) -> str:
     """Convert int to a four-character hex string.

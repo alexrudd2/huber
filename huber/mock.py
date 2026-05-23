@@ -6,6 +6,7 @@ import random
 
 from huber.driver import Bath as realBath
 from huber.driver import BathData
+from huber.util import Fault
 
 
 class Bath(realBath):
@@ -104,10 +105,10 @@ class Bath(realBath):
         """Get bath status indicators. Useful for triggering alerts."""
         return (await self.get())['status']
 
-    async def get_error(self) -> dict | None:
+    async def get_error(self) -> Fault | None:
         """Get the most recent error, as a dictionary."""
         return (await self.get()).get('error')
 
-    async def get_warning(self) -> dict | None:
+    async def get_warning(self) -> Fault | None:
         """Get the most recent warning, as a dictionary."""
         return (await self.get()).get('warning')
