@@ -72,5 +72,5 @@ def test_driver_cli_setpoint(capsys, expected_data):
          mock.patch('random.choice', return_value=fixed_choice):
         command_line(['fakeip', '--set-setpoint', '1.23'])
         captured = loads(capsys.readouterr().out)
-        expected_data['temperature']['setpoint'] = 1.23
+        expected_data['temperature']['setpoint'] = 1.23  # type: ignore[index, assignment]
         assert expected_data == captured

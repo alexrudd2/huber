@@ -144,7 +144,7 @@ def parse(number, settings: dict):
         raise NotImplementedError(f'Number format "{format}" not supported.')
 
 
-def get_field(key: str):
+def get_field(key: str) -> dict:
     """Search period-separated key searching on `fields`."""
     f = fields
     for k in key.split('.'):
