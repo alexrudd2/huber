@@ -79,13 +79,6 @@ fields = {
     'status': {
         'address': 0x0a,
         'format': 'list',
-        'list': {
-            0: 'controlling',
-            1: 'circulating',
-            4: 'pumping',
-            8: 'error',
-            9: 'warning',
-        },
     },
     'error': {
         'address': 0x05,
@@ -136,13 +129,21 @@ def parse(number, settings: dict):
         return number / 100.0
     elif format == '%':
         return number / 1000.0
-    elif format == 'list':
-        return {v: bool(number >> i & 1) for i, v in settings['list'].items()}
     elif format == 'fault':
         return faults[number] if number < 0 else None
     else:
         raise NotImplementedError(f'Number format "{format}" not supported.')
 
+def parse_status(number: int) -> dict[str, bool]:
+    """Parse a status code into booleans."""
+    statuses = {
+        'controlling': 0,
+        'circulating': 1,
+        'pumping': 4,
+        'error': 8,
+        'warning': 9,
+    }
+    return {k: bool(number >> v & 1) for k, v in statuses.items()}
 
 def get_field(key: str) -> dict:
     """Search period-separated key searching on `fields`."""

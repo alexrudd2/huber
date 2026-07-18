@@ -87,9 +87,9 @@ class Bath:
             util.set_nested(output, default, await self._get(default))  # type: ignore[call-overload]
         if output.get('status'):
             if output['status']['warning']:
-                output['warning'] = await self._get('warning')  # type: ignore[typeddict-item]
+                output['warning'] = await self._get_fault('warning')  # type: ignore[attr-defined]
             if output['status']['error']:
-                output['error'] = await self._get('error')  # type: ignore[typeddict-item]
+                output['error'] = await self._get_fault('error')  # type: ignore[attr-defined]
         return output
 
     async def start(self) -> None:
