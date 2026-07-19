@@ -36,7 +36,7 @@ class BathData(TypedDict):
 class Bath:
     """Python driver for Huber recirculating baths."""
 
-    port = 8101
+    port: int = 8101
     defaults: ClassVar[list[str]] = [
         'on',
         'temperature.bath',
@@ -48,17 +48,17 @@ class Bath:
         'maintenance',
         'status',
     ]
-    connection: ReaderWriter
+    connection: ReaderWriter  # type: ignore[reportUninitializedInstanceVariable]
 
     def __init__(self, ip: str, max_timeouts: int =10, comm_timeout: float =0.25) -> None:
         """Initialize the connection with the bath's IP address."""
-        self.ip = ip
-        self.open = False
-        self.reconnecting = False
-        self.timeouts = 0
-        self.max_timeouts = max_timeouts
-        self.comm_timeout = comm_timeout
-        self.lock = asyncio.Lock()
+        self.ip: str = ip
+        self.open: bool = False
+        self.reconnecting: bool = False
+        self.timeouts: int = 0
+        self.max_timeouts: int = max_timeouts
+        self.comm_timeout: float = comm_timeout
+        self.lock: asyncio.Lock = asyncio.Lock()
 
     async def __aenter__(self) -> Bath:
         """Provide async entrance to context manager.
@@ -145,7 +145,7 @@ class Bath:
         await self._set('warning', 1)
 
     async def set_pump_speed(self, value: float) -> None:
-        """Set the bath pump speed, in RPM."""
+        """Set the bath pump speed setpoint, in RPM."""
         return await self._set('pump.setpoint', value)
 
     async def get_fill_level(self) -> float:

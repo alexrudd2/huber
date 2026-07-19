@@ -95,3 +95,5 @@ venvPath = "."
 venv = ".venv"
 enableTypeIgnoreComments = true
 reportImplicitStringConcatenation = false
+reportImplicitOverride = false
+ignore = ["tests"]

@@ -3,43 +3,33 @@ from __future__ import annotations
 
 import asyncio
 import random
+from typing import final
 
 from huber.driver import Bath as realBath
 from huber.driver import BathData
-from huber.util import Fault
+from huber.util import STATUS_BITS, hex_to_int, int_to_hex
 
 
+@final
 class Bath(realBath):
     """Mock interface to a Huber bath."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        """Init fixed variables."""
-        self.temp_setpoint: float = 50
-        self.pump_setpoint: float = 500
-        self.on = False
+    server: asyncio.Server  # type: ignore[reportUninitializedInstanceVariable]
 
-    async def _connect(self) -> None:
-        """Mock creating the TCP connection."""
-        self.open = True
+    def __init__(self, ip: str, max_timeouts: int =10, comm_timeout: float =0.25) -> None:
+        super().__init__(ip, max_timeouts, comm_timeout)
 
-    def close(self) -> None:
-        """Mock closing the TCP connection."""
-        self.open = False
-
-    async def get(self) -> BathData:
-        """Return data structure randomly populated."""
-        await asyncio.sleep(random.random() * 0.25)
-        mock_bath_data: BathData = {
-            'on': self.on,  # Temperature control (+pump) active
+        self.state: BathData = {
+            'on': False,                                # Temperature control (+pump) active
             'temperature': {
-                'bath': 23.49,                  # Internal (bath) temperature, °C
-                'process': 22.71,               # Process temperature, °C
-                'setpoint': self.temp_setpoint, # Temperature setpoint, °C
+                'bath': 23.49,                          # Internal (bath) temperature, °C
+                'process': 22.71,                       # Process temperature, °C
+                'setpoint': 50.0,                       # Temperature setpoint, °C
             },
             'pump': {
-                'pressure': random.random() * 1000,    # Pump head pressure, mbar
-                'speed': random.random() * 1000,       # Pump speed, rpm
-                'setpoint': self.pump_setpoint,        # Pump speed setpoint, rpm
+                'pressure': random.random() * 320,      # Pump head pressure, mbar
+                'speed': int(random.random() * 32000),  # Pump speed, rpm
+                'setpoint': 1500,                       # Pump speed setpoint, rpm
             },
             'status': {
                 'circulating': random.choice([False, True]),  # True if device is circulating
@@ -48,67 +38,81 @@ class Bath(realBath):
                 'pumping': random.choice([False, True]),      # True if pump is on
                 'warning': False,                             # True if an uncleared warning exists
             },
-            'fill': random.random(),               # Oil level, [0, 1]
-            'maintenance': random.random() * 365,  # Time until maintenance alarm, days
+            'fill': random.random(),                    # Oil level, [0, 1]
+            'maintenance': int(random.random() * 365),  # Time until maintenance alarm, days
         }
-        return mock_bath_data
 
-    async def start(self) -> None:
-        """Start the controller and pump."""
-        await asyncio.sleep(random.random())
-        self.on = True
+    async def _connect(self) -> None:
+        self.server = await asyncio.start_server(
+            self._handle_client, host="127.0.0.1", port=0,  # let OS pick free port
+        )
+        sock = self.server.sockets[0]
+        self.port = sock.getsockname()[:2][1]
+        self.ip = "127.0.0.1"
 
-    async def stop(self) -> None:
-        """Stop the controller and pump."""
-        await asyncio.sleep(random.random() * 0.25)
-        self.on = False
+        await super()._connect()
 
-    async def get_setpoint(self) -> float:
-        """Return setpoint."""
-        return (await self.get())['temperature']['setpoint']
+    def close(self) -> None:
+        """"Close the TCP connection and tear down the server."""
+        super().close()
+        if hasattr(self, "server"):
+            self.server.close()
 
-    async def set_setpoint(self, value: float) -> None:
-        """Set the temperature setpoint of the bath, in C."""
-        await asyncio.sleep(random.random() * 0.25)
-        self.temp_setpoint = value
+    async def _handle_client(  # noqa: C901
+        self,
+        reader: asyncio.StreamReader,
+        writer: asyncio.StreamWriter,
+    ) -> None:
+        try:
+            while not reader.at_eof():
+                data = await reader.readline()
+                if not data:
+                    break
+                assert(data[0:2] == b'{M')
+                assert(data[-2:] == b'\r\n')
+                command = data[2:-2]
+                address = int(command[0:2], 16)
+                value = command[2:6].decode()
+                if value == "****":  # reads
+                    match address:
+                        case 0x14:  # running status
+                            response: bool | int = self.state['on']
+                        case 0x01:  # bath temp
+                            response = int(self.state['temperature']['bath'] * 100)
+                        case 0x00:  # bath temp setpoint
+                            response = int(self.state['temperature']['setpoint'] * 100)
+                        case 0x03:  # pump pressure
+                            response = int(self.state['pump']['pressure'] * 100)
+                        case 0x26:  # pump speed
+                            response = int(self.state['pump']['speed'])
+                        case 0x48:  # pump setpoint
+                            response = int(self.state['pump']['setpoint'])
+                        case 0x0f:  # fill %
+                            response = int(self.state['fill'] * 1000)
+                        case 0x5c:  # maintenance days
+                            response = int(self.state['maintenance'])
+                        case 0x0a:  # status enumeration
+                            response = sum(1 << bit for name, bit in STATUS_BITS.items()
+                                          if self.state['status'][name])
+                        case _:
+                            raise NotImplementedError(f"Address {address} is not implemented")
+                else:  # writes
+                    match address:
+                        case 0x14:  # running status
+                            self.state['on'] = value == '0001'
+                        case 0x00:  # temp setpoint
+                            val = hex_to_int(value) / 100.0
+                            self.state['temperature']['setpoint'] = val
+                        case 0x48:  # pump speed setpoint
+                            val = hex_to_int(value)
+                            self.state['pump']['setpoint'] = val
+                            self.state['pump']['speed'] = val
+                        case _:
+                            raise NotImplementedError(f"Address {address} is not implemented")
+                    response = hex_to_int(value)
 
-    async def get_bath_temperature(self) -> float:
-        """Get the internal temperature of the bath, in C."""
-        return (await self.get())['temperature']['bath']
-
-    async def get_process_temperature(self) -> float:
-        """Get the (optionally installed) process temperature, in C."""
-        return (await self.get())['temperature']['process']
-
-    async def get_pump_pressure(self) -> float:
-        """Get the bath pump outlet pressure, in mbar."""
-        return (await self.get())['pump']['pressure']
-
-    async def get_pump_speed(self) -> float:
-        """Get the bath pump speed, in RPM."""
-        return (await self.get())['pump']['speed']
-
-    async def set_pump_speed(self, value: float) -> None:
-        """Set the bath pump speed, in RPM."""
-        await asyncio.sleep(random.random() * 0.25)
-        self.pump_setpoint = value
-
-    async def get_fill_level(self) -> float:
-        """Get the thermostat fluid fill level, in [0, 1]."""
-        return (await self.get())['fill']
-
-    async def get_next_maintenance(self) -> float:
-        """Get the number of days until next maintenance alarm."""
-        return (await self.get())['maintenance']
-
-    async def get_status(self) -> dict[str, bool]:
-        """Get bath status indicators. Useful for triggering alerts."""
-        return (await self.get())['status']
-
-    async def get_error(self) -> Fault | None:
-        """Get the most recent error, as a dictionary."""
-        return (await self.get()).get('error')
-
-    async def get_warning(self) -> Fault | None:
-        """Get the most recent warning, as a dictionary."""
-        return (await self.get()).get('warning')
+                writer.write(('{S' + f"{address:02X}" + int_to_hex(response) + '\r\n').encode())
+                await writer.drain()
+        finally:
+            writer.close()
+            await writer.wait_closed()

@@ -64,7 +64,7 @@ fields = {
             'address': 0x48,
             'writable': True,
             'format': 'd',
-            'range': (1500, 4500),
+            'range': (0, 32000),
         },
     },
     'fill': {
