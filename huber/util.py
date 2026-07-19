@@ -129,21 +129,24 @@ def parse(number, settings: dict):
         return number / 100.0
     elif format == '%':
         return number / 1000.0
+    elif format == 'list':
+        return parse_status(number)
     elif format == 'fault':
         return faults[number] if number < 0 else None
     else:
         raise NotImplementedError(f'Number format "{format}" not supported.')
 
+STATUS_BITS = {
+    'controlling': 0,
+    'circulating': 1,
+    'pumping': 4,
+    'error': 8,
+    'warning': 9,
+}
+
 def parse_status(number: int) -> dict[str, bool]:
     """Parse a status code into booleans."""
-    statuses = {
-        'controlling': 0,
-        'circulating': 1,
-        'pumping': 4,
-        'error': 8,
-        'warning': 9,
-    }
-    return {k: bool(number >> v & 1) for k, v in statuses.items()}
+    return {k: bool(number >> v & 1) for k, v in STATUS_BITS.items()}
 
 def get_field(key: str) -> dict:
     """Search period-separated key searching on `fields`."""
