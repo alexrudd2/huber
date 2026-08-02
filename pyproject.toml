@@ -34,7 +34,7 @@ dev = [
   "pytest>=9.0",
   "pytest-cov",
   "pytest-asyncio>=1.3.0",
-  "ruff==0.15.22",
+  "ruff==0.16.1",
   "zuban==0.9.1",
 ]
 
