@@ -9,7 +9,9 @@ import logging
 from typing import ClassVar, Literal, overload
 
 try:
-    from typing_extensions import NotRequired, TypedDict
+    from typing import NotRequired
+
+    from typing_extensions import TypedDict
 except ImportError:
     from typing import NotRequired, TypedDict
 
@@ -235,7 +237,7 @@ class Bath:
             if not self.open:
                 await asyncio.wait_for(self._connect(), timeout=self.comm_timeout)
             self.reconnecting = False
-        except (asyncio.TimeoutError, OSError):
+        except (TimeoutError, OSError):
             if not self.reconnecting:
                 logger.error(f'Connecting to {self.ip} timed out.')
             self.reconnecting = True
@@ -248,7 +250,7 @@ class Bath:
             line = await asyncio.wait_for(future, timeout=self.comm_timeout)
             result = line.decode().strip()
             self.timeouts = 0
-        except (asyncio.TimeoutError, TypeError, OSError):
+        except (TimeoutError, TypeError, OSError):
             self.timeouts += 1
             if self.timeouts == self.max_timeouts:
                 logger.error(f'Reading from {self.ip} timed out '
